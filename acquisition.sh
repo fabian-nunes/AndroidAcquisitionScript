@@ -3,7 +3,7 @@
 ADB=/usr/bin/adb
 USER=0
 
-
+#In case the person didnt put the correct number of arguments
 if [[ $# -lt 1 ]]; then
     echo "Usage:"
     echo "      $0 app.full.name [-d|-e]"

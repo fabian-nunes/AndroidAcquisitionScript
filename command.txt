@@ -1,0 +1,3 @@
+tar -czvf /sdcard/Download/dados.tgz com.garmin.android.apps.connectmobile/
+
+adb pull /sdcard/Download/dados.tgz
