@@ -13,28 +13,30 @@ n = len(sys.argv)
 if n == 3:
     APP = sys.argv[1]
     DEVICE = sys.argv[2]
-    testName = "com.garmin.android.apps.connectmobile"
 else:
-    print("Please enter only one argument the application package name")
+    print("Usage: python3 acquisition.py <package name> <device type>")
+    print("Device types: e- (emulator), d - usb")
+    print("Example: python3 acquisition.py com.garmin.android.apps.connectmobile e-")
     sys.exit()
 
 # Type of acquisition either "-e" for emulator or "-d" for usb device
 if DEVICE == "-e":
-    print("Emulator")
+    print("Acquiring data from emulator")
     CMD = "su 0"
     END = ""
     DEVNAME = "emu"
 elif DEVICE == "-d":
-    print("USB Device")
+    print("Acquiring data from usb device")
     CMD = "su -c '"
     END = "'"
     DEVNAME = "usb"
 else:
-    print("Invalid argument")
+    print("Unknown device type" + DEVICE)
+    print("Device types: e- (emulator), d - usb")
     sys.exit()
 
 if os.name == 'nt':
-    print("You are running this script on Windows machine")
+    print("You are running this script on a Windows machine")
     # ADB = 'C:\\Program Files\\Android\\android-sdk\\platform-tools\\adb.exe'
     ADB = 'C:\\adb\\adb.exe'
     print("Does the application " + APP + " exist?")
@@ -52,9 +54,12 @@ if os.name == 'nt':
 
 else:
     print("You are running this script on Linux machine")
-    ADB = 'usr/bin/adb'
+    ADB = os.popen("which adb").read()
+    ADB = ADB.strip()
+
     print("Does the application " + APP + " exist?")
     app = os.system(ADB + " " + DEVICE + " shell pm list packages | grep " + APP)
+
     if app == 0:
         print("The application " + APP + " exists")
     else:
@@ -63,11 +68,12 @@ else:
 
     VERSION = os.popen(ADB + " " + DEVICE + " shell pm dump " + APP + " | grep versionName").read()
     VERSION = VERSION.split("=")[1]
+    VERSION = VERSION.strip()
 
     ANDROID = os.popen(ADB + " " + DEVICE + " shell getprop ro.build.version.release").read()
+    ANDROID = ANDROID.strip()
 
-# FILENAME = APP + "-v" + str(VERSION) + "--" + DEVNAME + str(ANDROID) + "-u" + str(USER) + "--" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".tar"
-FILENAME = "dados.tar"
+FILENAME = APP + "-v" + str(VERSION) + "--" + DEVNAME + str(ANDROID) + "-u" + str(USER) + "--" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".tar"
 
 
 print(APP + " version: " + str(VERSION))
