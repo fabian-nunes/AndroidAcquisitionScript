@@ -91,14 +91,14 @@ print("[Info ] Android version: " + str(ANDROID))
 
 print("[Info ] Copying data from " + APP + " version " + VERSION + " ...")
 
-subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " /data/data/" + APP + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+#subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " /data/data/" + APP + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
 # Not working need to check why
 # Check for filename with spaces
 # print(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".1.txt " + END)
-# os.system(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".1.txt " + END)
-# os.system(ADB + " " + DEVICE + " shell " + CMD + " find /data/user/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".2.txt " + END)
-# os.system(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " -T /sdcard/Download/" + FILENAME + ".1.txt " + "-T /sdcard/Download/" + FILENAME + ".2.txt " + END)
+os.system(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".1.txt " + END)
+os.system(ADB + " " + DEVICE + " shell " + CMD + " find /data/user/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".2.txt " + END)
+os.system(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " -T /sdcard/Download/" + FILENAME + ".1.txt " + "-T /sdcard/Download/" + FILENAME + ".2.txt " + END)
 
 print("[Info ] Copy Terminated.")
 
