@@ -91,14 +91,14 @@ print("[Info ] Android version: " + str(ANDROID))
 
 print("[Info ] Copying data from " + APP + " version " + VERSION + " ...")
 
+# Primary method used to copy the data from the application
 #subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " /data/data/" + APP + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
-# Not working need to check why
+# Method used in the bash script to copy the data from the application
 # Check for filename with spaces
-# print(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".1.txt " + END)
-os.system(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".1.txt " + END)
-os.system(ADB + " " + DEVICE + " shell " + CMD + " find /data/user/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".2.txt " + END)
-os.system(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " -T /sdcard/Download/" + FILENAME + ".1.txt " + "-T /sdcard/Download/" + FILENAME + ".2.txt " + END)
+subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + str(USER) + "/" + APP + " -print0 | tee /sdcard/Download/" + FILENAME + ".1.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " find /data/user/" + str(USER) + "/" + APP + " -print0 | tee /sdcard/Download/" + FILENAME + ".2.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " -T /sdcard/Download/" + FILENAME + ".1.txt " + "-T /sdcard/Download/" + FILENAME + ".2.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
 print("[Info ] Copy Terminated.")
 
@@ -112,5 +112,5 @@ print("[Info ] Copy Terminated.")
 
 print("[Info ] Cleaning acquisition files from phone...")
 subprocess.run(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".gz", stdout=subprocess.DEVNULL, shell=True)
-# os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".?.txt")
+os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".?.txt")
 print("[Info ] Clean Terminated.")
