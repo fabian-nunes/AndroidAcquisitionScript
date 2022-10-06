@@ -4,6 +4,7 @@
 # Acquisition script to get the private folder application folder from and Android application in a rooted device or
 # emulator, script based on the work of @mfrade and is bash implementation
 # Example: python acquisition.py com.example.app -d
+# Attention: In Windows, it is best to run the script in the PowerShell
 
 import sys
 import os
@@ -43,6 +44,7 @@ else:
 
 if os.name == 'nt':
     print("[Info ] Host OS: Windows")
+    SHELL = False
     ADB = subprocess.run("where adb", shell=True, capture_output=True)
     ADB = ADB.stdout.decode("utf-8").strip()
 
@@ -63,6 +65,7 @@ if os.name == 'nt':
 
 else:
     print("[Info ] Host OS: Linux")
+    SHELL = True
     ADB = subprocess.run("which adb", shell=True, capture_output=True)
     ADB = ADB.stdout.decode("utf-8").strip()
 
@@ -96,8 +99,8 @@ print("[Info ] Copying data from " + APP + " version " + VERSION + " ...")
 
 # Method used in the bash script to copy the data from the application
 # Check for filename with spaces
-subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + str(USER) + "/" + APP + " -print0 | tee /sdcard/Download/" + FILENAME + ".1.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
-subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " find /data/user/" + str(USER) + "/" + APP + " -print0 | tee /sdcard/Download/" + FILENAME + ".2.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + str(USER) + "/" + APP + " -print0 | tee /sdcard/Download/" + FILENAME + ".1.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=SHELL)
+subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " find /data/user/" + str(USER) + "/" + APP + " -print0 | tee /sdcard/Download/" + FILENAME + ".2.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=SHELL)
 subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " -T /sdcard/Download/" + FILENAME + ".1.txt " + "-T /sdcard/Download/" + FILENAME + ".2.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
 print("[Info ] Copy Terminated.")
