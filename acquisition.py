@@ -69,7 +69,7 @@ else:
     print("[Info ] Does " + APP + " exist?")
     IsDir = subprocess.run(ADB + " " + DEVICE + " shell pm list packages | grep " + APP, stdout=subprocess.PIPE, shell=True)
 
-    if IsDir == 0:
+    if IsDir.returncode == 0:
         print("[Info ] Yes!")
     else:
         print("[ERROR] " + APP + " does not exist!")
@@ -91,7 +91,7 @@ print("[Info ] Android version: " + str(ANDROID))
 
 print("[Info ] Copying data from " + APP + " version " + VERSION + " ...")
 
-subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/" + FILENAME + " /data/data/" + APP + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " /data/data/" + APP + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
 # Not working need to check why
 # Check for filename with spaces
@@ -102,18 +102,15 @@ subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/" + FI
 
 print("[Info ] Copy Terminated.")
 
-# print("Compressing " + FILENAME)
-# os.system(ADB + " " + DEVICE + " shell gzip /sdcard/Download/" + FILENAME)
-# print("Compressing Terminated")
+print("[Info ] Compressing " + FILENAME + " ...")
+subprocess.run(ADB + " " + DEVICE + " shell gzip /sdcard/Download/" + FILENAME, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+print("[Info] Compressing Terminated.")
 
 print("[Info ] Copying to local storage ...")
-subprocess.run(ADB + " " + DEVICE + " pull /sdcard/" + FILENAME, stdout=subprocess.DEVNULL, shell=True)
-
-# os.system(ADB + " " + DEVICE + " pull /sdcard/Download/" + FILENAME + ".gz")
+subprocess.run(ADB + " " + DEVICE + " pull /sdcard/Download/" + FILENAME+".gz", stdout=subprocess.DEVNULL, shell=True)
 print("[Info ] Copy Terminated.")
 
 print("[Info ] Cleaning acquisition files from phone...")
-subprocess.run(ADB + " " + DEVICE + " shell rm /sdcard/" + FILENAME, stdout=subprocess.DEVNULL, shell=True)
-# os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".gz")
+subprocess.run(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".gz", stdout=subprocess.DEVNULL, shell=True)
 # os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".?.txt")
 print("[Info ] Clean Terminated.")
