@@ -2,6 +2,7 @@
 
 import sys
 import os
+import subprocess
 from datetime import datetime
 
 USER = 0
@@ -14,74 +15,78 @@ if n == 3:
     APP = sys.argv[1]
     DEVICE = sys.argv[2]
 else:
-    print("Usage: python3 acquisition.py <package name> <device type>")
+    print("Usage: python3 acquisition.py <package name> [-d | -e]")
     print("Device types: e- (emulator), d - usb")
     print("Example: python3 acquisition.py com.garmin.android.apps.connectmobile e-")
     sys.exit()
 
 # Type of acquisition either "-e" for emulator or "-d" for usb device
 if DEVICE == "-e":
-    print("Acquiring data from emulator")
+    print("[Info ] Acquiring from device: emulator")
     CMD = "su 0"
     END = ""
     DEVNAME = "emu"
 elif DEVICE == "-d":
-    print("Acquiring data from usb device")
+    print("[Info ] Acquiring from device: USB")
     CMD = "su -c '"
     END = "'"
     DEVNAME = "usb"
 else:
-    print("Unknown device type" + DEVICE)
+    print("[ERROR] Unknown device " + DEVICE)
     print("Device types: e- (emulator), d - usb")
     sys.exit()
 
 if os.name == 'nt':
-    print("You are running this script on a Windows machine")
-    # ADB = 'C:\\Program Files\\Android\\android-sdk\\platform-tools\\adb.exe'
-    ADB = 'C:\\adb\\adb.exe'
-    print("Does the application " + APP + " exist?")
-    app = os.system(ADB + " " + DEVICE + " shell pm list packages | findstr " + APP)
-    if app == 0:
-        print("The application " + APP + " exists")
+    print("[Info ] Host OS: Windows")
+    ADB = subprocess.run("where adb", shell=True, capture_output=True)
+    ADB = ADB.stdout.decode("utf-8").strip()
+
+    # ADB = os.popen('where adb').read().strip()
+    print("[Info ] Does " + APP + " exist?")
+    IsDir = subprocess.run(ADB + " " + DEVICE + " shell pm list packages | findstr " + APP, stdout=subprocess.PIPE, shell=True)
+
+    if IsDir.returncode == 0:
+        print("[Info ] Yes!")
     else:
-        print("The application " + APP + " does not exist")
+        print("[ERROR] " + APP + " does not exist!")
         sys.exit()
 
-    VERSION = os.popen(ADB + " " + DEVICE + " shell pm dump " + APP + " | findstr versionName").read()
-    VERSION = VERSION.split("=")[1]
+    print("[Info ] Getting Info...")
 
-    ANDROID = os.popen(ADB + " " + DEVICE + " shell getprop ro.build.version.release").read()
+    VERSION = subprocess.run(ADB + " " + DEVICE + " shell pm dump " + APP + " | findstr versionName", shell=True, capture_output=True)
+
 
 else:
-    print("You are running this script on Linux machine")
-    ADB = os.popen("which adb").read()
-    ADB = ADB.strip()
+    print("[Info ] You are running this script on Linux machine")
+    ADB = subprocess.run("which adb", shell=True, capture_output=True)
+    ADB = ADB.stdout.decode("utf-8").strip()
 
-    print("Does the application " + APP + " exist?")
-    app = os.system(ADB + " " + DEVICE + " shell pm list packages | grep " + APP)
+    print("[Info ] Does " + APP + " exist?")
+    IsDir = subprocess.run(ADB + " " + DEVICE + " shell pm list packages | grep " + APP, stdout=subprocess.PIPE, shell=True)
 
-    if app == 0:
-        print("The application " + APP + " exists")
+    if IsDir == 0:
+        print("[Info ] Yes!")
     else:
-        print("The application " + APP + " does not exist")
+        print("[ERROR] " + APP + " does not exist!")
         sys.exit()
 
-    VERSION = os.popen(ADB + " " + DEVICE + " shell pm dump " + APP + " | grep versionName").read()
-    VERSION = VERSION.split("=")[1]
-    VERSION = VERSION.strip()
+    VERSION = subprocess.run(ADB + " " + DEVICE + " shell pm dump " + APP + " | grep versionName", shell=True, capture_output=True)
 
-    ANDROID = os.popen(ADB + " " + DEVICE + " shell getprop ro.build.version.release").read()
-    ANDROID = ANDROID.strip()
+
+VERSION = VERSION.stdout.decode("utf-8").strip()
+VERSION = VERSION.split("=")[1]
+
+ANDROID = subprocess.run(ADB + " " + DEVICE + " shell getprop ro.build.version.release", shell=True, capture_output=True)
+ANDROID = ANDROID.stdout.decode("utf-8").strip()
 
 FILENAME = APP + "-v" + str(VERSION) + "--" + DEVNAME + str(ANDROID) + "-u" + str(USER) + "--" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".tar"
 
+print("[Info ] " + APP + " version: " + str(VERSION))
+print("[Info ] Android version: " + str(ANDROID))
 
-print(APP + " version: " + str(VERSION))
-print("Android version: " + str(ANDROID))
+print("[Info ] Copying data from " + APP + " version " + VERSION + " ...")
 
-print("Copying data from " + APP + " to " + FILENAME)
-
-os.system(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/" + FILENAME + " /data/data/" + APP + END)
+subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/" + FILENAME + " /data/data/" + APP + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
 # Not working need to check why
 # Check for filename with spaces
@@ -90,20 +95,20 @@ os.system(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/" + FILENAM
 # os.system(ADB + " " + DEVICE + " shell " + CMD + " find /data/user/" + str(USER) + "/" + APP + " -print0 > /sdcard/Download/" + FILENAME + ".2.txt " + END)
 # os.system(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " -T /sdcard/Download/" + FILENAME + ".1.txt " + "-T /sdcard/Download/" + FILENAME + ".2.txt " + END)
 
-print("Copy Terminated")
+print("[Info ] Copy Terminated.")
 
 # print("Compressing " + FILENAME)
 # os.system(ADB + " " + DEVICE + " shell gzip /sdcard/Download/" + FILENAME)
 # print("Compressing Terminated")
 
-print("Copying " + FILENAME + " to the local machine")
-os.system(ADB + " " + DEVICE + " pull /sdcard/" + FILENAME)
+print("[Info ] Copying to local storage ...")
+subprocess.run(ADB + " " + DEVICE + " pull /sdcard/" + FILENAME, stdout=subprocess.DEVNULL, shell=True)
 
 # os.system(ADB + " " + DEVICE + " pull /sdcard/Download/" + FILENAME + ".gz")
-print("Copying Terminated")
+print("[Info ] Copy Terminated.")
 
-print("Removing the application data from the device")
-os.system(ADB + " " + DEVICE + " shell rm /sdcard/" + FILENAME)
-#os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".gz")
-#os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".?.txt")
-print("Removing Terminated")
+print("[Info ] Cleaning acquisition files from phone...")
+subprocess.run(ADB + " " + DEVICE + " shell rm /sdcard/" + FILENAME, stdout=subprocess.DEVNULL, shell=True)
+# os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".gz")
+# os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".?.txt")
+print("[Info ] Clean Terminated.")
