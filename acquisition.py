@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# Author: Fabian Nunes
+# Acquisition script to get the private folder application folder from and Android application in a rooted device or
+# emulator, script based on the work of @mfrade and is bash implementation
+# Example: python acquisition.py com.example.app -d
+
 import sys
 import os
 import subprocess
