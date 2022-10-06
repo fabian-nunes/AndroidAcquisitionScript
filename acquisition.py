@@ -62,7 +62,7 @@ if os.name == 'nt':
 
 
 else:
-    print("[Info ] You are running this script on Linux machine")
+    print("[Info ] Host OS: Linux")
     ADB = subprocess.run("which adb", shell=True, capture_output=True)
     ADB = ADB.stdout.decode("utf-8").strip()
 
