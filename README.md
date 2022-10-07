@@ -1,5 +1,5 @@
 # Android App Acquisition Script
-Bash script to acquire data form Android apps
+Python script to acquire data form Android apps
 
 ## Description
 Script to acquire the private folder of an Android app (`/data/data/<app-name>`) as a `tar.gz` file, and adds the app version and a timestamp to the compressed filename. 
@@ -12,48 +12,44 @@ Script to acquire the private folder of an Android app (`/data/data/<app-name>`)
 ### Requirements
 
 This script requires:
-- `adb` to install do: `sudo apt install adb`
-- `tar` (pre-installed in most Linux distros)
-- `gzip` (pre-installed in most Linux distros)
+- `adb`
+- `Python 3`
+- `tar`
+- `gzip`
 
-This script was developed and tested on Ubuntu 20.04 and Android 10.
+This script was developed and tested on Windows 11 and MacOS 12 and Android 11.
 
 
 ### Examples
 
 Acquire data with the wrong app name:
 ```
-user@linux:~$ ./aquisition.sh us.zoom
-[Info ] Does "us.zoom" exist?
-[ERROR] "us.zoom" does not exist!
+user@linux:~$ python3 acquisition.py com.garmin.android.apps.connectmobile -d
+[Info ] Does "com.garmin.android.apps.connectmobile" exist?
+[ERROR] "com.garmin.android.apps.connectmobile" does not exist!
 ```
 
 Acquire data with the correct app name:
 ```
-user@linux:~$ ./aquisition.sh us.zoom.videomeetings -d
+user@linux:~$ python3 acquisition.py com.garmin.android.apps.connectmobile -d
 [Info ] Acquiring from device: USB
-[Info ] Does "us.zoom.videomeetings" exist?
+[Info ] Host OS: Windows
+[Info ] Does com.garmin.android.apps.connectmobile exist?
 [Info ] Yes!
-[Info ] Getting info...
-[Info ] us.zoom.videomeetings version = 5.9.6.4756
-[Info ] Android version = 10
-[Info ] Copying data from "us.zoom.videomeetings" version "5.9.6.4756" ...
-removing leading '/' from member names
-data/user_de/0/us.zoom.videomeetings/
-...
-data/user/0/us.zoom.videomeetings/
-...
-[Info ] Copy terminated.
-[Info ] Compressing "us.zoom.videomeetings-v5.9.6.4756--usb10--u0--2022.03.14T17.01.42.tar" ...
-[Info ] Compressing terminated.
-[Info ] Copying to local storage...
-/sdcard/Download/us.zoom.videomeetings-v5.9.6.4756--....z: 1 file pulled. 25.3 MB/s (4572767 bytes in 0.173s)
-[Info ] Copy terminated.
+[Info ] Getting Info...
+[Info ] com.garmin.android.apps.connectmobile version: 4.59
+[Info ] Android version: 11
+[Info ] Copying data from com.garmin.android.apps.connectmobile version 4.59 ...
+[Info ] Copy Terminated.
+[Info ] Compressing com.garmin.android.apps.connectmobile-v4.59--usb11-u0--20221007-191307.tar ...
+[Info] Compressing Terminated.
+[Info ] Copying to local storage ...
+[Info ] Copy Terminated.
 [Info ] Cleaning acquisition files from phone...
-[Info ] Clean terminated.
+[Info ] Clean Terminated.
 ```
 
-Uncompress the acquired file:
+Uncompress the acquired file (on UNIX):
 ```
 user@linux:~$ gunzip us.zoom.videomeetings-v5.9.6.4756--usb10--u0--2022.03.14T17.01.42.tar.gz
 user@linux:~$ tar -xvf us.zoom.videomeetings-v5.9.6.4756--usb10--u0--2022.03.14T17.01.42.tar
@@ -66,8 +62,9 @@ data/user/0/us.zoom.videomeetings/
 data/user/0/us.zoom.videomeetings/data/
 ...
 ```
+For windows, use `7zip`  to uncompress the file.
 
-Verify the folder structure of the acquired data:
+The folder structure should be similar to this:
 ```
 user@linux:~$ tree -d -L 4 data/
 data/

@@ -4,7 +4,7 @@
 # Acquisition script to get the private folder application folder from and Android application in a rooted device or
 # emulator, script based on the work of @mfrade and is bash implementation
 # Example: python acquisition.py com.example.app -d
-# Attention: In Windows, it is best to run the script in the PowerShell
+# Attention: In Windows, it is best to run the script in the PowerShell, additionaly use 7zip to extract the .tar.gz file, winrar does not work
 
 import sys
 import os
