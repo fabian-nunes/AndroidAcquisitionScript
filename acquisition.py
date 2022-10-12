@@ -11,6 +11,13 @@ import os
 import subprocess
 from datetime import datetime
 
+
+class Bcolors:
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    FAIL = '\033[91m'
+
+
 USER = 0
 
 # total number of arguments
@@ -28,54 +35,54 @@ else:
 
 # Type of acquisition either "-e" for emulator or "-d" for usb device
 if DEVICE == "-e":
-    print("[Info ] Acquiring from device: emulator")
+    print(Bcolors.OKBLUE + "[Info ] Acquiring from device: emulator")
     CMD = "su 0"
     END = ""
     DEVNAME = "emu"
 elif DEVICE == "-d":
-    print("[Info ] Acquiring from device: USB")
+    print(Bcolors.OKBLUE + "[Info ] Acquiring from device: USB")
     CMD = "su -c '"
     END = "'"
     DEVNAME = "usb"
 else:
-    print("[ERROR] Unknown device " + DEVICE)
+    print(Bcolors.FAIL + "[ERROR] Unknown device " + DEVICE)
     print("Device types: e- (emulator), d - usb")
     sys.exit()
 
 if os.name == 'nt':
-    print("[Info ] Host OS: Windows")
+    print(Bcolors.OKBLUE + "[Info ] Host OS: Windows")
     SHELL = False
     ADB = subprocess.run("where adb", shell=True, capture_output=True)
     ADB = ADB.stdout.decode("utf-8").strip()
 
     # ADB = os.popen('where adb').read().strip()
-    print("[Info ] Does " + APP + " exist?")
+    print(Bcolors.OKBLUE + "[Info ] Does " + APP + " exist?")
     IsDir = subprocess.run(ADB + " " + DEVICE + " shell pm list packages | findstr " + APP, stdout=subprocess.PIPE, shell=True)
 
     if IsDir.returncode == 0:
-        print("[Info ] Yes!")
+        print(Bcolors.OKBLUE + "[Info ] Yes!")
     else:
-        print("[ERROR] " + APP + " does not exist!")
+        print(Bcolors.FAIL + "[ERROR] " + APP + " does not exist!")
         sys.exit()
 
-    print("[Info ] Getting Info...")
+    print(Bcolors.OKBLUE + "[Info ] Getting Info...")
 
     VERSION = subprocess.run(ADB + " " + DEVICE + " shell pm dump " + APP + " | findstr versionName", shell=True, capture_output=True)
 
 
 else:
-    print("[Info ] Host OS: Linux")
+    print(Bcolors.OKBLUE + "[Info ] Host OS: Linux")
     SHELL = True
     ADB = subprocess.run("which adb", shell=True, capture_output=True)
     ADB = ADB.stdout.decode("utf-8").strip()
 
-    print("[Info ] Does " + APP + " exist?")
+    print(Bcolors.OKBLUE + "[Info ] Does " + APP + " exist?")
     IsDir = subprocess.run(ADB + " " + DEVICE + " shell pm list packages | grep " + APP, stdout=subprocess.PIPE, shell=True)
 
     if IsDir.returncode == 0:
-        print("[Info ] Yes!")
+        print(Bcolors.OKBLUE + "[Info ] Yes!")
     else:
-        print("[ERROR] " + APP + " does not exist!")
+        print(Bcolors.FAIL + "[ERROR] " + APP + " does not exist!")
         sys.exit()
 
     VERSION = subprocess.run(ADB + " " + DEVICE + " shell pm dump " + APP + " | grep versionName", shell=True, capture_output=True)
@@ -89,13 +96,13 @@ ANDROID = ANDROID.stdout.decode("utf-8").strip()
 
 FILENAME = APP + "-v" + str(VERSION) + "--" + DEVNAME + str(ANDROID) + "-u" + str(USER) + "--" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".tar"
 
-print("[Info ] " + APP + " version: " + str(VERSION))
-print("[Info ] Android version: " + str(ANDROID))
+print(Bcolors.OKBLUE + "[Info ] " + APP + " version: " + str(VERSION))
+print(Bcolors.OKBLUE + "[Info ] Android version: " + str(ANDROID))
 
-print("[Info ] Copying data from " + APP + " version " + VERSION + " ...")
+print(Bcolors.OKBLUE + "[Info ] Copying data from " + APP + " version " + VERSION + " ...")
 
 # Primary method used to copy the data from the application
-#subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " /data/data/" + APP + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+# subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " /data/data/" + APP + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
 # Method used in the bash script to copy the data from the application
 # Check for filename with spaces
@@ -103,17 +110,18 @@ subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " find /data/user_de/" + s
 subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " find /data/user/" + str(USER) + "/" + APP + " -print0 | tee /sdcard/Download/" + FILENAME + ".2.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=SHELL)
 subprocess.run(ADB + " " + DEVICE + " shell " + CMD + " tar -cvzf /sdcard/Download/" + FILENAME + " -T /sdcard/Download/" + FILENAME + ".1.txt " + "-T /sdcard/Download/" + FILENAME + ".2.txt " + END, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
 
-print("[Info ] Copy Terminated.")
+print(Bcolors.OKBLUE + "[Info ] Copy Terminated.")
 
-print("[Info ] Compressing " + FILENAME + " ...")
+print(Bcolors.OKBLUE + "[Info ] Compressing " + FILENAME + " ...")
 subprocess.run(ADB + " " + DEVICE + " shell gzip /sdcard/Download/" + FILENAME, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
-print("[Info] Compressing Terminated.")
+print(Bcolors.OKBLUE + "[Info] Compressing Terminated.")
 
-print("[Info ] Copying to local storage ...")
+print(Bcolors.OKBLUE + "[Info ] Copying to local storage ...")
 subprocess.run(ADB + " " + DEVICE + " pull /sdcard/Download/" + FILENAME+".gz", stdout=subprocess.DEVNULL, shell=True)
-print("[Info ] Copy Terminated.")
+print(Bcolors.OKBLUE + "[Info ] Copy Terminated.")
 
-print("[Info ] Cleaning acquisition files from phone...")
+print(Bcolors.OKBLUE + "[Info ] Cleaning acquisition files from phone...")
 subprocess.run(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".gz", stdout=subprocess.DEVNULL, shell=True)
 os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".?.txt")
-print("[Info ] Clean Terminated.")
+print(Bcolors.OKBLUE + "[Info ] Clean Terminated.")
+print(Bcolors.OKGREEN + "[Done ] Operation Completed with success, generated file: " + FILENAME + ".gz")
