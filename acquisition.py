@@ -16,6 +16,7 @@ class Bcolors:
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
     FAIL = '\033[91m'
+    ENDC = '\033[0m'
 
 
 USER = 0
@@ -47,6 +48,7 @@ elif DEVICE == "-d":
 else:
     print(Bcolors.FAIL + "[ERROR] Unknown device " + DEVICE)
     print("Device types: e- (emulator), d - usb")
+    print(Bcolors.ENDC)
     sys.exit()
 
 if os.name == 'nt':
@@ -63,6 +65,7 @@ if os.name == 'nt':
         print(Bcolors.OKBLUE + "[Info ] Yes!")
     else:
         print(Bcolors.FAIL + "[ERROR] " + APP + " does not exist!")
+        print(Bcolors.ENDC)
         sys.exit()
 
     print(Bcolors.OKBLUE + "[Info ] Getting Info...")
@@ -83,6 +86,7 @@ else:
         print(Bcolors.OKBLUE + "[Info ] Yes!")
     else:
         print(Bcolors.FAIL + "[ERROR] " + APP + " does not exist!")
+        print(Bcolors.ENDC)
         sys.exit()
 
     VERSION = subprocess.run(ADB + " " + DEVICE + " shell pm dump " + APP + " | grep versionName", shell=True, capture_output=True)
@@ -125,3 +129,4 @@ subprocess.run(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + "
 os.system(ADB + " " + DEVICE + " shell rm /sdcard/Download/" + FILENAME + ".?.txt")
 print(Bcolors.OKBLUE + "[Info ] Clean Terminated.")
 print(Bcolors.OKGREEN + "[Done ] Operation Completed with success, generated file: " + FILENAME + ".gz")
+print(Bcolors.ENDC)
